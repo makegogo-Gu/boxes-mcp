@@ -19,6 +19,7 @@ import { sendMouse } from "./mouse.js";
 import { clipboard as clipboardOperation } from "./clipboard.js";
 import { dragDrop as dragDropOperation } from "./drag-drop.js";
 import { discoverCapabilities } from "./capabilities.js";
+import { listAll as localListAll, health as localHealth } from "./local-host.js";
 import { BoxesError, errorCode, errorMessage } from "./errors.js";
 
 export interface ToolDefinition {
@@ -230,6 +231,16 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
       },
       required: ["nameOrUuid", "sourcePath", "x", "y"]
     }
+  },
+  {
+    name: "local.list_all",
+    description: "Read-only: list all libvirt domains across configured URIs with seclabel and disk sources",
+    inputSchema: { type: "object", additionalProperties: false, properties: {}, required: [] }
+  },
+  {
+    name: "local.health",
+    description: "Read-only: report local virtualization health (services, secmodel, networks, pools, resources, recent errors)",
+    inputSchema: { type: "object", additionalProperties: false, properties: {}, required: [] }
   }
 ];
 
@@ -297,6 +308,8 @@ export async function handleTool(name: string, args: unknown): Promise<ToolResul
       case "boxes.mouse": return textResult(await sendMouse(args));
       case "boxes.clipboard": return textResult(await clipboardOperation(args));
       case "boxes.drag_drop": return textResult(await dragDropOperation(args));
+      case "local.list_all": return textResult(await localListAll());
+      case "local.health": return textResult(await localHealth());
       default: throw new BoxesError("INVALID_ARGUMENT", `Unknown tool: ${name}`);
     }
   } catch (error) {
