@@ -4,7 +4,7 @@ import { handleTool, TOOL_DEFINITIONS } from "./tools.js";
 describe("MCP tool registry", () => {
   it("contains all existing tools and new interaction tools", () => {
     const names = TOOL_DEFINITIONS.map(tool => tool.name);
-    expect(names).toHaveLength(19);
+    expect(names).toHaveLength(21);
     expect(new Set(names).size).toBe(names.length);
     expect(names).toEqual(expect.arrayContaining([
       "boxes.list",
@@ -25,12 +25,14 @@ describe("MCP tool registry", () => {
       "boxes.keyboard",
       "boxes.mouse",
       "boxes.clipboard",
-      "boxes.drag_drop"
+      "boxes.drag_drop",
+      "local.list_all",
+      "local.health"
     ]));
   });
 
-  it("uses the boxes namespace and snapshot namespace consistently", () => {
-    for (const tool of TOOL_DEFINITIONS) expect(tool.name).toMatch(/^boxes\./);
+  it("uses the boxes/local namespaces and snapshot namespace consistently", () => {
+    for (const tool of TOOL_DEFINITIONS) expect(tool.name).toMatch(/^(boxes|local)\./);
     for (const tool of TOOL_DEFINITIONS.filter(tool => tool.name.includes("snapshots"))) {
       expect(tool.name).toMatch(/^boxes\.snapshots\./);
     }
