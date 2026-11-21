@@ -20,6 +20,7 @@ import { clipboard as clipboardOperation } from "./clipboard.js";
 import { dragDrop as dragDropOperation } from "./drag-drop.js";
 import { discoverCapabilities } from "./capabilities.js";
 import { listAll as localListAll, health as localHealth } from "./local-host.js";
+import { localStart, localShutdown, localSnapshot } from "./local-lifecycle.js";
 import { BoxesError, errorCode, errorMessage } from "./errors.js";
 
 export interface ToolDefinition {
@@ -241,6 +242,47 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: "local.health",
     description: "Read-only: report local virtualization health (services, secmodel, networks, pools, resources, recent errors)",
     inputSchema: { type: "object", additionalProperties: false, properties: {}, required: [] }
+  },
+  {
+    name: "local.start",
+    description: "Start a VM. Requires confirm=true; enforces Whonix Gateway-before-Workstation order.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: { nameOrUuid: domainProperty, confirm: { type: "boolean", default: false } },
+      required: ["nameOrUuid"]
+    }
+  },
+  {
+    name: "local.shutdown",
+    description: "Shutdown a VM (force=false uses graceful shutdown). Requires confirm=true; refuses to stop Whonix-Gateway while a Workstation is running.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        nameOrUuid: domainProperty,
+        confirm: { type: "boolean", default: false },
+        force: { type: "boolean", description: "Force off (destroy) instead of graceful shutdown", default: false }
+      },
+      required: ["nameOrUuid"]
+    }
+  },
+  {
+    name: "local.snapshot",
+    description: "List/create/revert/delete VM snapshots. Write actions require confirm=true; baseline snapshot is protected.",
+    inputSchema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        nameOrUuid: domainProperty,
+        action: { type: "string", enum: ["list", "create", "revert", "delete"] },
+        snapshot: { type: "string" },
+        description: { type: "string" },
+        allowBaseline: { type: "boolean", description: "Allow revert/delete of pre-mcp-20261122", default: false },
+        confirm: { type: "boolean", default: false }
+      },
+      required: ["nameOrUuid", "action"]
+    }
   }
 ];
 
@@ -310,6 +352,9 @@ export async function handleTool(name: string, args: unknown): Promise<ToolResul
       case "boxes.drag_drop": return textResult(await dragDropOperation(args));
       case "local.list_all": return textResult(await localListAll());
       case "local.health": return textResult(await localHealth());
+      case "local.start": return textResult(await localStart(args as { nameOrUuid: string; confirm?: boolean }));
+      case "local.shutdown": return textResult(await localShutdown(args as { nameOrUuid: string; confirm?: boolean; force?: boolean }));
+      case "local.snapshot": return textResult(await localSnapshot(args as { nameOrUuid: string; action: "list" | "create" | "revert" | "delete"; snapshot?: string; description?: string; allowBaseline?: boolean; confirm?: boolean }));
       default: throw new BoxesError("INVALID_ARGUMENT", `Unknown tool: ${name}`);
     }
   } catch (error) {
