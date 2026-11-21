@@ -28,6 +28,7 @@
     "LICENSE"
   ],
   "scripts": {
+    "prepare": "npm run build",
     "build": "tsc -p .",
     "start": "node dist/src/index.js",
     "dev": "node --watch dist/src/index.js",
@@ -44,7 +45,7 @@
     "verify": "npm test && npm run build && npm pack --dry-run"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0"
+    "@modelcontextprotocol/sdk": "1.32.2"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",
