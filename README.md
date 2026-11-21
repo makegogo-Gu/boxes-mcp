@@ -215,6 +215,20 @@ For a manual setup, add the server to your Claude Code config (`~/.claude.json`)
 | `local.list_all` | All domains across configured URIs with seclabel models and disk sources | - |
 | `local.health` | Host health: services, secmodel, package, networks, pools, resources, recent errors and AppArmor denials | - |
 
+### Local host (confirm-gated lifecycle)
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `local.start` | Start a VM; enforces Whonix Gateway-before-Workstation order | `nameOrUuid, confirm: true` |
+| `local.shutdown` | Graceful shutdown or force destroy | `nameOrUuid, confirm: true, force?: boolean` |
+| `local.snapshot` | List/create/revert/delete snapshots; baseline is protected | `nameOrUuid, action, snapshot?, description?, allowBaseline?, confirm?: true` |
+
+Write operations refuse to run without `confirm: true`. Whonix ordering is
+enforced, and the baseline snapshot `pre-mcp-20261122` cannot be reverted or
+deleted unless `allowBaseline: true` is passed. Every attempt is appended as a
+JSONL record to `BOXES_MCP_AUDIT_PATH` (default `~/.pi/agent/boxes-mcp-audit.jsonl`,
+mode 0600).
+
 These tools never accept shell fragments or caller-supplied commands; they reuse
 the same bounded `execFile` boundary as the rest of the server.
 
