@@ -208,6 +208,16 @@ For a manual setup, add the server to your Claude Code config (`~/.claude.json`)
 | `boxes.clipboard` | Explicit UTF-8 clipboard read/write through the SPICE helper | `nameOrUuid, operation, selection?, text?` |
 | `boxes.drag_drop` | Experimental confined transfer plus pointer sequence and separate evidence | `nameOrUuid, sourcePath, x, y, coordinateSpace?, width?, height?, timeoutMs?` |
 
+### Local host (read-only)
+
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `local.list_all` | All domains across configured URIs with seclabel models and disk sources | - |
+| `local.health` | Host health: services, secmodel, package, networks, pools, resources, recent errors and AppArmor denials | - |
+
+These tools never accept shell fragments or caller-supplied commands; they reuse
+the same bounded `execFile` boundary as the rest of the server.
+
 Interaction tools never accept shell fragments, raw QMP JSON, arbitrary virsh
 flags, guest commands, or arbitrary transfer destinations. New operations require
 a running domain and return a stable capability/error code when their backend is
